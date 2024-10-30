@@ -83,7 +83,7 @@ if [[ -n $dnf ]] || [[ -n $yum ]]; then
     tar
   )
   # perl used for building openssl-sys crate. See: https://docs.rs/openssl/latest/openssl/
-  if grep -qP '^ID="(fedora)' /etc/os-release; then
+  if grep -qP '^ID="?(fedora)' /etc/os-release; then
     deps+=(
       perl-FindBin
       perl-IPC-Cmd

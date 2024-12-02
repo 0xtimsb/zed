@@ -1,5 +1,5 @@
 use anyhow::{anyhow, bail, Context, Result};
-use async_compression::futures::bufread::GzipDecoder;
+use async_compression::futures::bufread::{GzipDecoder, XzDecoder};
 use async_tar::Archive;
 use async_trait::async_trait;
 use collections::HashMap;
@@ -338,6 +338,10 @@ impl LspAdapter for NodeVersionAdapter {
                 .await?;
             } else if version.url.ends_with(".tar.gz") {
                 let decompressed_bytes = GzipDecoder::new(BufReader::new(response.body_mut()));
+                let archive = Archive::new(decompressed_bytes);
+                archive.unpack(&destination_container_path).await?;
+            } else if version.url.ends_with(".tar.xz") {
+                let decompressed_bytes = XzDecoder::new(BufReader::new(response.body_mut()));
                 let archive = Archive::new(decompressed_bytes);
                 archive.unpack(&destination_container_path).await?;
             }

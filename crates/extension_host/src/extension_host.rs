@@ -6,7 +6,7 @@ pub mod wasm_host;
 mod extension_store_test;
 
 use anyhow::{anyhow, bail, Context as _, Result};
-use async_compression::futures::bufread::GzipDecoder;
+use async_compression::futures::bufread::{GzipDecoder, XzDecoder};
 use async_tar::Archive;
 use client::{proto, telemetry::Telemetry, Client, ExtensionMetadata, GetExtensionsResponse};
 use collections::{btree_map, BTreeMap, HashMap, HashSet};
@@ -24,7 +24,7 @@ use futures::{
         oneshot,
     },
     io::BufReader,
-    select_biased, AsyncReadExt as _, Future, FutureExt as _, StreamExt as _,
+    select_biased, AsyncRead, AsyncReadExt as _, Future, FutureExt as _, StreamExt as _,
 };
 use gpui::{
     actions, AppContext, AsyncAppContext, Context, EventEmitter, Global, Model, ModelContext, Task,
@@ -668,16 +668,24 @@ impl ExtensionStore {
                 .and_then(|value| value.to_str().ok()?.parse::<usize>().ok());
 
             let mut body = BufReader::new(response.body_mut());
-            let mut tar_gz_bytes = Vec::new();
-            body.read_to_end(&mut tar_gz_bytes).await?;
+            let mut archive_bytes = Vec::new();
+            body.read_to_end(&mut archive_bytes).await?;
 
             if let Some(content_length) = content_length {
-                let actual_len = tar_gz_bytes.len();
+                let actual_len = archive_bytes.len();
                 if content_length != actual_len {
                     bail!("downloaded extension size {actual_len} does not match content length {content_length}");
                 }
             }
-            let decompressed_bytes = GzipDecoder::new(BufReader::new(tar_gz_bytes.as_slice()));
+
+            let decompressed_bytes: Box<dyn AsyncRead + Unpin> = if url.as_str().ends_with(".tar.gz") {
+                Box::new(GzipDecoder::new(BufReader::new(archive_bytes.as_slice())))
+            } else if url.as_str().ends_with(".tar.xz") {
+                Box::new(XzDecoder::new(BufReader::new(archive_bytes.as_slice())))
+            } else {
+                bail!("unsupported archive format");
+            };
+
             let archive = Archive::new(decompressed_bytes);
             archive.unpack(extension_dir).await?;
             this.update(&mut cx, |this, cx| {

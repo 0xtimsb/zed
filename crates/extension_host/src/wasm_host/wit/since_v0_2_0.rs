@@ -4,7 +4,7 @@ use crate::wasm_host::{wit::ToWasmtimeResult, WasmState};
 use ::http_client::{AsyncBody, HttpRequestExt};
 use ::settings::{Settings, WorktreeId};
 use anyhow::{anyhow, bail, Context, Result};
-use async_compression::futures::bufread::GzipDecoder;
+use async_compression::futures::bufread::{GzipDecoder, XzDecoder};
 use async_tar::Archive;
 use async_trait::async_trait;
 use context_server_settings::ContextServerSettings;
@@ -750,6 +750,22 @@ impl ExtensionImports for WasmState {
                     node_runtime::extract_zip(&destination_path, body)
                         .await
                         .with_context(|| format!("failed to unzip {} archive", path.display()))?;
+                }
+                DownloadedFileType::Xz => {
+                    let body = XzDecoder::new(body);
+                    futures::pin_mut!(body);
+                    self.host
+                        .fs
+                        .create_file_with(&destination_path, body)
+                        .await?;
+                }
+                DownloadedFileType::XzTar => {
+                    let body = XzDecoder::new(body);
+                    futures::pin_mut!(body);
+                    self.host
+                        .fs
+                        .extract_tar_file(&destination_path, Archive::new(body))
+                        .await?;
                 }
             }
 

@@ -261,7 +261,7 @@ mod linux {
         io,
         os::unix::net::{SocketAddr, UnixDatagram},
         path::{Path, PathBuf},
-        process::{self, ExitStatus},
+        process::{self, Command, ExitStatus},
         thread,
         time::Duration,
     };
@@ -337,12 +337,24 @@ mod linux {
     }
 
     impl App {
+        fn use_gpu_if_available() {
+            if std::env::var("DRI_PRIME").is_err() {
+                if let Ok(output) = Command::new("lspci").output() {
+                    let output_str = String::from_utf8_lossy(&output.stdout).to_lowercase();
+                    if output_str.contains("nvidia") || output_str.contains("amd") {
+                        std::env::set_var("DRI_PRIME", "1");
+                    }
+                }
+            }
+        }
+
         fn boot_background(&self, ipc_url: String) -> anyhow::Result<()> {
             let path = &self.0;
 
             match fork::fork() {
                 Ok(Fork::Parent(_)) => Ok(()),
                 Ok(Fork::Child) => {
+                    Self::use_gpu_if_available();
                     std::env::set_var(FORCE_CLI_MODE_ENV_VAR_NAME, "");
                     if let Err(_) = fork::setsid() {
                         eprintln!("failed to setsid: {}", std::io::Error::last_os_error());

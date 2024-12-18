@@ -4805,6 +4805,7 @@ dependencies = [
  "text",
  "time",
  "util",
+ "which 6.0.3",
  "windows 0.58.0",
 ]
 

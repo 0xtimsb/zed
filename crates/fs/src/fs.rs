@@ -552,14 +552,7 @@ impl Fs for RealFs {
                     }
                     writer.flush().await?;
 
-                    // Using 'tee' to preserve the target file's permissions and ownership
-                    let command = format!(
-                        "cat {} | sudo tee {} > /dev/null",
-                        tmp_file.path().to_str().unwrap(),
-                        path.to_str().unwrap()
-                    );
-
-                    execute_elevated_command(&command).await
+                    write_to_file_as_root(&tmp_file.path(), path).await
                 } else {
                     // Todo: Implement for Mac and Windows
                     Err(e.into())
@@ -2037,46 +2030,43 @@ fn create_temp_file(path: &Path) -> Result<NamedTempFile> {
 }
 
 #[cfg(target_os = "macos")]
-async fn execute_elevated_command(_command: &str) -> Result<()> {
-    unimplemented!("execute_elevated_command is not implemented")
+async fn write_to_file_as_root(temp_file_path: &Path, target_file_path: &Path) -> Result<()> {
+    unimplemented!("write_to_file_as_root is not implemented")
 }
 
 #[cfg(target_os = "windows")]
-async fn execute_elevated_command(_command: &str) -> Result<()> {
-    unimplemented!("execute_elevated_command is not implemented")
+async fn write_to_file_as_root(temp_file_path: &Path, target_file_path: &Path) -> Result<()> {
+    unimplemented!("write_to_file_as_root is not implemented")
 }
 
 #[cfg(any(target_os = "linux", target_os = "freebsd"))]
-async fn execute_elevated_command(command: &str) -> Result<()> {
-    use which::which;
-
-    let pkexec_path = which("pkexec").map_err(|_| anyhow::anyhow!("pkexec not found in PATH"))?;
-
-    let mut cmd = Command::new(pkexec_path);
-    cmd.arg("--disable-internal-agent");
+async fn write_to_file_as_root(temp_file_path: &Path, target_file_path: &Path) -> Result<()> {
+    use dirs::home_dir;
 
     let script_paths = [
-        Some(PathBuf::from("/usr/libexec/zed/elevate.sh")),
-        std::env::var("ZED_ELEVATE_SCRIPT").ok().map(PathBuf::from),
+        home_dir().map(|h| h.join(".local/share/zed/scripts/write-to-file-as-root.sh")),
+        std::env::var("ZED_WRITE_FILE_AS_ROOT_SCRIPT")
+            .ok()
+            .map(PathBuf::from),
     ];
 
-    let script_exists = script_paths.iter().flatten().find(|path| path.exists());
+    let script_path = script_paths
+        .iter()
+        .flatten()
+        .find(|path| path.exists())
+        .ok_or_else(|| anyhow::anyhow!("Write to file as root script not found"))?;
 
-    if let Some(script_path) = script_exists {
-        // Custom message will be shown to user
-        cmd.arg(script_path).arg(command);
-    } else {
-        // Default message will be shown to user
-        cmd.arg("/usr/bin/env").arg("bash").arg("-c").arg(command);
-    }
-
-    let output = cmd.output().await?;
+    let output = Command::new(script_path)
+        .arg(temp_file_path)
+        .arg(target_file_path)
+        .output()
+        .await?;
 
     if output.status.success() {
         return Ok(());
     }
 
-    Err(anyhow::anyhow!("Failed to run as elevated user"))
+    Err(anyhow::anyhow!("Failed to write to file as root"))
 }
 
 pub fn normalize_path(path: &Path) -> PathBuf {

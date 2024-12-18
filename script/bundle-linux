@@ -123,10 +123,6 @@ fi
 mkdir -p "${zed_dir}/share/applications"
 envsubst < "crates/zed/resources/zed.desktop.in" > "${zed_dir}/share/applications/zed$suffix.desktop"
 
-# Write file as root script
-mkdir -p "${zed_dir}/share/scripts"
-cp "script/write-to-file-as-root.sh" "${zed_dir}/share/scripts/"
-
 # Copy generated licenses so they'll end up in archive too
 cp "assets/licenses.md" "${zed_dir}/licenses.md"
 

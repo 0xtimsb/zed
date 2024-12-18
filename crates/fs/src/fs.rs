@@ -2041,32 +2041,23 @@ async fn write_to_file_as_root(temp_file_path: &Path, target_file_path: &Path) -
 
 #[cfg(any(target_os = "linux", target_os = "freebsd"))]
 async fn write_to_file_as_root(temp_file_path: &Path, target_file_path: &Path) -> Result<()> {
-    use dirs::home_dir;
+    use which::which;
 
-    let script_paths = [
-        home_dir().map(|h| h.join(".local/share/zed/scripts/write-to-file-as-root.sh")),
-        std::env::var("ZED_WRITE_FILE_AS_ROOT_SCRIPT")
-            .ok()
-            .map(PathBuf::from),
-    ];
+    let pkexec_path = which("pkexec").map_err(|_| anyhow::anyhow!("pkexec not found in PATH"))?;
 
-    let script_path = script_paths
-        .iter()
-        .flatten()
-        .find(|path| path.exists())
-        .ok_or_else(|| anyhow::anyhow!("Write to file as root script not found"))?;
-
-    let output = Command::new(script_path)
-        .arg(temp_file_path)
+    let output = Command::new(&pkexec_path)
+        .arg("--disable-internal-agent")
+        .arg("tee")
         .arg(target_file_path)
+        .stdin(std::fs::File::open(temp_file_path)?)
         .output()
         .await?;
 
-    if output.status.success() {
-        return Ok(());
+    if !output.status.success() {
+        return Err(anyhow::anyhow!("Failed to write to file as root"));
     }
 
-    Err(anyhow::anyhow!("Failed to write to file as root"))
+    Ok(())
 }
 
 pub fn normalize_path(path: &Path) -> PathBuf {

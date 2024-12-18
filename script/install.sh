@@ -125,13 +125,7 @@ linux() {
     desktop_file_path="$HOME/.local/share/applications/${appid}.desktop"
     cp "$HOME/.local/zed$suffix.app/share/applications/zed$suffix.desktop" "${desktop_file_path}"
     sed -i "s|Icon=zed|Icon=$HOME/.local/zed$suffix.app/share/icons/hicolor/512x512/apps/zed.png|g" "${desktop_file_path}"
-    sed -i "s|Exec=zed|Exec=$HOME/.local/zed$suffix.app/bin/zed|g" "${desktop_file_path}"       
-
-    # Copy write file as root script
-    mkdir -p "$HOME/.local/share/zed/scripts"
-    script_file_path="$HOME/.local/share/zed/scripts/write-to-file-as-root.sh"
-    cp "$HOME/.local/zed$suffix.app/share/scripts/write-to-file-as-root.sh" "$script_file_path"
-    chmod +x "$script_file_path"
+    sed -i "s|Exec=zed|Exec=$HOME/.local/zed$suffix.app/bin/zed|g" "${desktop_file_path}"
 }
 
 macos() {

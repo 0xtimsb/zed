@@ -1232,6 +1232,23 @@ impl PlatformWindow for X11Window {
         self.0.state.borrow().hovered
     }
 
+    fn title(&self) -> String {
+        match get_reply(
+            || "X11 GetProperty for WM_NAME failed.",
+            self.0.xcb.get_property(
+                false,
+                self.0.x_window,
+                xproto::AtomEnum::WM_NAME,
+                xproto::AtomEnum::STRING,
+                0,
+                u32::MAX,
+            ),
+        ) {
+            Ok(reply) => String::from_utf8_lossy(&reply.value).to_string(),
+            Err(_) => String::new(),
+        }
+    }
+
     fn set_title(&mut self, title: &str) {
         check_reply(
             || "X11 ChangeProperty8 on WM_NAME failed.",

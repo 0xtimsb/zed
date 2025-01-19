@@ -81,6 +81,7 @@ pub struct WaylandWindowState {
     pub surface: wl_surface::WlSurface,
     decoration: Option<zxdg_toplevel_decoration_v1::ZxdgToplevelDecorationV1>,
     app_id: Option<String>,
+    title: Option<String>,
     appearance: WindowAppearance,
     blur: Option<org_kde_kwin_blur::OrgKdeKwinBlur>,
     toplevel: xdg_toplevel::XdgToplevel,
@@ -156,6 +157,7 @@ impl WaylandWindowState {
             surface,
             decoration,
             app_id: None,
+            title: None,
             blur: None,
             toplevel,
             viewport,
@@ -873,8 +875,14 @@ impl PlatformWindow for WaylandWindow {
         self.borrow().hovered
     }
 
+    fn title(&self) -> String {
+        self.borrow().title.clone().unwrap_or_default()
+    }
+
     fn set_title(&mut self, title: &str) {
-        self.borrow().toplevel.set_title(title.to_string());
+        let mut state = self.borrow_mut();
+        state.toplevel.set_title(title.to_string());
+        state.title = Some(title.to_owned());
     }
 
     fn set_app_id(&mut self, app_id: &str) {

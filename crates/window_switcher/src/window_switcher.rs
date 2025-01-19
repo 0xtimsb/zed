@@ -1,11 +1,12 @@
+#[cfg(test)]
+mod window_switcher_tests;
+
 use gpui::{
     actions, impl_actions, rems, Action, AnyElement, AnyWindowHandle, AppContext, DismissEvent,
-    EventEmitter, FocusHandle, FocusableView, Model, Modifiers, ModifiersChangedEvent, MouseButton,
+    EventEmitter, FocusHandle, FocusableView, Modifiers, ModifiersChangedEvent, MouseButton,
     MouseUpEvent, ParentElement, Render, Styled, Task, View, ViewContext, VisualContext, WeakView,
-    WindowId,
 };
 use picker::{Picker, PickerDelegate};
-use project::Project;
 use schemars::JsonSchema;
 use serde::Deserialize;
 use std::sync::Arc;
@@ -52,28 +53,8 @@ impl WindowSwitcher {
     }
 
     fn open(action: &Toggle, workspace: &mut Workspace, cx: &mut ViewContext<Workspace>) {
-        // let mut weak_pane = workspace.active_pane().downgrade();
-        // for dock in [
-        //     workspace.left_dock(),
-        //     workspace.bottom_dock(),
-        //     workspace.right_dock(),
-        // ] {
-        //     dock.update(cx, |this, cx| {
-        //         let Some(panel) = this
-        //             .active_panel()
-        //             .filter(|panel| panel.focus_handle(cx).contains_focused(cx))
-        //         else {
-        //             return;
-        //         };
-        //         if let Some(pane) = panel.pane(cx) {
-        //             weak_pane = pane.downgrade();
-        //         }
-        //     })
-        // }
-
-        let project = workspace.project().clone();
         workspace.toggle_modal(cx, |cx| {
-            let delegate = WindowSwitcherDelegate::new(project, action, cx.view().downgrade(), cx);
+            let delegate = WindowSwitcherDelegate::new(action, cx.view().downgrade());
             WindowSwitcher::new(delegate, cx)
         });
     }
@@ -140,91 +121,33 @@ pub struct WindowSwitcherDelegate {
     select_last: bool,
     window_switcher: WeakView<WindowSwitcher>,
     selected_index: usize,
-    project: Model<Project>,
     matches: Vec<WindowMatch>,
 }
 
 impl WindowSwitcherDelegate {
-    fn new(
-        project: Model<Project>,
-        action: &Toggle,
-        tab_switcher: WeakView<WindowSwitcher>,
-        cx: &mut ViewContext<WindowSwitcher>,
-    ) -> Self {
+    fn new(action: &Toggle, tab_switcher: WeakView<WindowSwitcher>) -> Self {
+        // TODO: subscribe to window create/close events so that we can update the matches list
         Self {
             select_last: action.select_last,
             window_switcher: tab_switcher,
             selected_index: 0,
-            project,
             matches: Vec::new(),
         }
     }
 
-    // fn subscribe_to_updates(pane: &WeakView<Pane>, cx: &mut ViewContext<WindowSwitcher>) {
-    //     let Some(pane) = pane.upgrade() else {
-    //         return;
-    //     };
-    //     cx.subscribe(&pane, |tab_switcher, _, event, cx| {
-    //         match event {
-    //             PaneEvent::AddItem { .. }
-    //             | PaneEvent::RemovedItem { .. }
-    //             | PaneEvent::Remove { .. } => tab_switcher.picker.update(cx, |picker, cx| {
-    //                 let selected_item_id = picker.delegate.selected_item_id();
-    //                 picker.delegate.update_matches(cx);
-    //                 if let Some(item_id) = selected_item_id {
-    //                     picker.delegate.select_item(item_id, cx);
-    //                 }
-    //                 cx.notify();
-    //             }),
-    //             _ => {}
-    //         };
-    //     })
-    //     .detach();
-    // }
-
     fn update_matches(&mut self, cx: &mut WindowContext) {
         self.matches.clear();
 
-        let windows = cx.windows();
-
-        // let pane = pane.read(cx);
-        // let mut history_indices = HashMap::default();
-        // pane.activation_history().iter().rev().enumerate().for_each(
-        //     |(history_index, history_entry)| {
-        //         history_indices.insert(history_entry.entity_id, history_index);
-        //     },
-        // );
-
-        // let items: Vec<Box<dyn ItemHandle>> = pane.items().map(|item| item.boxed_clone()).collect();
-        // items
-        //     .iter()
-        //     .enumerate()
-        //     .zip(tab_details(&items, cx))
-        //     .map(|((item_index, item), detail)| WindowMatch {
-        //         item_index,
-        //         item: item.boxed_clone(),
-        //         detail,
-        //         preview: pane.is_active_preview_item(item.item_id()),
-        //     })
-        //     .for_each(|tab_match| self.matches.push(tab_match));
-
-        for window in windows {
-            let title = "dummy title for now";
-            let detail = format!("{:?}", window.window_id());
-            let window_match = WindowMatch { window, detail };
+        for window in cx.windows() {
+            let title = cx
+                .update_window(window, |_, cx| cx.title())
+                .unwrap_or_else(|_| "New Window".to_string());
+            let window_match = WindowMatch {
+                window,
+                detail: title,
+            };
             self.matches.push(window_match);
         }
-
-        // let non_history_base = history_indices.len();
-        // self.matches.sort_by(move |a, b| {
-        //     let a_score = *history_indices
-        //         .get(&a.item.item_id())
-        //         .unwrap_or(&(a.item_index + non_history_base));
-        //     let b_score = *history_indices
-        //         .get(&b.item.item_id())
-        //         .unwrap_or(&(b.item_index + non_history_base));
-        //     a_score.cmp(&b_score)
-        // });
 
         if self.matches.len() > 1 {
             if self.select_last {
@@ -233,25 +156,6 @@ impl WindowSwitcherDelegate {
                 self.selected_index = 1;
             }
         }
-    }
-
-    fn selected_item_id(&self) -> Option<WindowId> {
-        self.matches
-            .get(self.selected_index())
-            .map(|window_match| window_match.window.window_id())
-    }
-
-    fn select_item(
-        &mut self,
-        item_id: WindowId,
-        cx: &mut ViewContext<Picker<WindowSwitcherDelegate>>,
-    ) {
-        let selected_idx = self
-            .matches
-            .iter()
-            .position(|window_match| window_match.window.window_id() == item_id)
-            .unwrap_or(0);
-        self.set_selected_index(selected_idx, cx);
     }
 
     fn close_item_at(&mut self, ix: usize, cx: &mut ViewContext<Picker<WindowSwitcherDelegate>>) {
@@ -306,7 +210,6 @@ impl PickerDelegate for WindowSwitcherDelegate {
         let Some(selected_match) = self.matches.get(self.selected_index()) else {
             return;
         };
-        println!("focusing window: {:?}", selected_match.window.window_id());
         cx.update_window(selected_match.window, |_, cx| cx.activate_window())
             .log_err();
     }
@@ -329,13 +232,6 @@ impl PickerDelegate for WindowSwitcherDelegate {
             .expect("Invalid matches state: no element for index {ix}");
 
         let label = Label::new(window_match.detail.clone()).into_any_element();
-        // let params = TabContentParams {
-        //     detail: Some(window_match.detail),
-        //     selected: true,
-        //     preview: window_match.preview,
-        // };
-        // let label = window_match.item.tab_content(params, cx);
-
         let close_button = div()
             // We need this on_mouse_up here instead of on_click on the close
             // button because Picker intercepts the same events and handles them

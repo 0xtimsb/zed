@@ -188,6 +188,10 @@ impl PlatformWindow for TestWindow {
         false
     }
 
+    fn title(&self) -> String {
+        self.0.lock().title.clone().unwrap_or_default()
+    }
+
     fn set_title(&mut self, title: &str) {
         self.0.lock().title = Some(title.to_owned());
     }

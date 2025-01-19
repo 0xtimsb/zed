@@ -950,6 +950,14 @@ impl PlatformWindow for MacWindow {
         false
     }
 
+    fn title(&self) -> String {
+        unsafe {
+            let window = self.0.lock().native_window;
+            let title: id = msg_send![window, title];
+            title.to_str()
+        }
+    }
+
     fn set_title(&mut self, title: &str) {
         unsafe {
             let app = NSApplication::sharedApplication(nil);

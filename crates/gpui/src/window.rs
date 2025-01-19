@@ -1281,6 +1281,11 @@ impl<'a> WindowContext<'a> {
         self.window.platform_window.window_controls()
     }
 
+    /// Returns the window's title.
+    pub fn title(&self) -> String {
+        self.window.platform_window.title().to_string()
+    }
+
     /// Updates the window's title at the platform level.
     pub fn set_window_title(&mut self, title: &str) {
         self.window.platform_window.set_title(title);

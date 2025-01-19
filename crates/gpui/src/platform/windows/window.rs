@@ -651,6 +651,17 @@ impl PlatformWindow for WindowsWindow {
         self.0.state.borrow().hovered
     }
 
+    fn title(&self) -> String {
+        let hwnd = self.0.hwnd;
+        let mut buffer = [0u16; 512];
+        let len = unsafe { GetWindowTextW(hwnd, &mut buffer) };
+        if len > 0 {
+            String::from_utf16_lossy(&buffer[..len as usize])
+        } else {
+            String::new()
+        }
+    }
+
     fn set_title(&mut self, title: &str) {
         unsafe { SetWindowTextW(self.0.hwnd, &HSTRING::from(title)) }
             .inspect_err(|e| log::error!("Set title failed: {e}"))

@@ -128,6 +128,7 @@ vcs_menu.workspace = true
 vim.workspace = true
 vim_mode_setting.workspace = true
 welcome.workspace = true
+window_switcher.workspace = true
 workspace.workspace = true
 zed_actions.workspace = true
 zeta.workspace = true

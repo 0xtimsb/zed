@@ -15239,6 +15239,30 @@ dependencies = [
 ]
 
 [[package]]
+name = "window_switcher"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "collections",
+ "ctor",
+ "editor",
+ "env_logger 0.11.6",
+ "gpui",
+ "language",
+ "menu",
+ "picker",
+ "project",
+ "schemars",
+ "serde",
+ "serde_json",
+ "settings",
+ "theme",
+ "ui",
+ "util",
+ "workspace",
+]
+
+[[package]]
 name = "windows"
 version = "0.54.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -16331,6 +16355,7 @@ dependencies = [
  "vim",
  "vim_mode_setting",
  "welcome",
+ "window_switcher",
  "windows 0.58.0",
  "winresource",
  "workspace",

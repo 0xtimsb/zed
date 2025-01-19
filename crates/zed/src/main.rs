@@ -494,6 +494,7 @@ fn main() {
         language_selector::init(cx);
         toolchain_selector::init(cx);
         theme_selector::init(cx);
+        window_switcher::init(cx);
         language_tools::init(cx);
         call::init(app_state.client.clone(), app_state.user_store.clone(), cx);
         notifications::init(app_state.client.clone(), app_state.user_store.clone(), cx);

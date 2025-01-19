@@ -144,6 +144,7 @@ members = [
     "crates/vim",
     "crates/vim_mode_setting",
     "crates/welcome",
+    "crates/window_switcher",
     "crates/workspace",
     "crates/worktree",
     "crates/zed",
@@ -339,6 +340,7 @@ vcs_menu = { path = "crates/vcs_menu" }
 vim = { path = "crates/vim" }
 vim_mode_setting = { path = "crates/vim_mode_setting" }
 welcome = { path = "crates/welcome" }
+window_switcher = { path = "crates/window_switcher" }
 workspace = { path = "crates/workspace" }
 worktree = { path = "crates/worktree" }
 zed = { path = "crates/zed" }

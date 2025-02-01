@@ -1157,7 +1157,7 @@ fn test_fold_at_level(cx: &mut TestAppContext) {
     });
 
     _ = editor.update(cx, |editor, window, cx| {
-        editor.fold_at_level(&FoldAtLevel { level: 2 }, window, cx);
+        editor.fold_at_level(&FoldAtLevel(2), window, cx);
         assert_eq!(
             editor.display_text(cx),
             "
@@ -1181,7 +1181,7 @@ fn test_fold_at_level(cx: &mut TestAppContext) {
             .unindent(),
         );
 
-        editor.fold_at_level(&FoldAtLevel { level: 1 }, window, cx);
+        editor.fold_at_level(&FoldAtLevel(1), window, cx);
         assert_eq!(
             editor.display_text(cx),
             "
@@ -1196,7 +1196,7 @@ fn test_fold_at_level(cx: &mut TestAppContext) {
         );
 
         editor.unfold_all(&UnfoldAll, window, cx);
-        editor.fold_at_level(&FoldAtLevel { level: 0 }, window, cx);
+        editor.fold_at_level(&FoldAtLevel(0), window, cx);
         assert_eq!(
             editor.display_text(cx),
             "

@@ -11,6 +11,7 @@ use crate::{
 };
 
 #[derive(Clone, Deserialize, JsonSchema, PartialEq)]
+#[serde(deny_unknown_fields)]
 pub struct Paste {
     #[serde(default)]
     before: bool,

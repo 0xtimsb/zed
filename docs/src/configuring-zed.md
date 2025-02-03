@@ -375,14 +375,14 @@ There are two options to choose from:
 1. `shell_hook`: Use the shell hook to load direnv. This relies on direnv to activate upon entering the directory. Supports POSIX shells and fish.
 2. `direct`: Use `direnv export json` to load direnv. This will load direnv directly without relying on the shell hook and might cause some inconsistencies. This allows direnv to work with any shell.
 
-## Inline Completions
+## Edit Predictions
 
-- Description: Settings for inline completions.
-- Setting: `inline_completions`
+- Description: Settings for edit predictions.
+- Setting: `edit_predictions`
 - Default:
 
 ```json
-  "inline_completions": {
+  "edit_predictions": {
     "disabled_globs": [
       "**/.env*",
       "**/*.pem",
@@ -398,7 +398,7 @@ There are two options to choose from:
 
 ### Disabled Globs
 
-- Description: A list of globs representing files that inline completions should be disabled for.
+- Description: A list of globs representing files that edit predictions should be disabled for.
 - Setting: `disabled_globs`
 - Default: `[".env"]`
 
@@ -406,35 +406,35 @@ There are two options to choose from:
 
 List of `string` values
 
-## Inline Completions Disabled in
+## Edit Predictions Disabled in
 
-- Description: A list of language scopes in which inline completions should be disabled.
-- Setting: `inline_completions_disabled_in`
+- Description: A list of language scopes in which edit predictions should be disabled.
+- Setting: `edit_predictions_disabled_in`
 - Default: `[]`
 
 **Options**
 
 List of `string` values
 
-1. Don't show inline completions in comments:
+1. Don't show edit predictions in comments:
 
 ```json
 "disabled_in": ["comment"]
 ```
 
-2. Don't show inline completions in strings and comments:
+2. Don't show edit predictions in strings and comments:
 
 ```json
 "disabled_in": ["comment", "string"]
 ```
 
-3. Only in Go, don't show inline completions in strings and comments:
+3. Only in Go, don't show edit predictions in strings and comments:
 
 ```json
 {
   "languages": {
     "Go": {
-      "inline_completions_disabled_in": ["comment", "string"]
+      "edit_predictions_disabled_in": ["comment", "string"]
     }
   }
 }
@@ -1478,7 +1478,7 @@ The following settings can be overridden for each specific language:
 - [`hard_tabs`](#hard-tabs)
 - [`preferred_line_length`](#preferred-line-length)
 - [`remove_trailing_whitespace_on_save`](#remove-trailing-whitespace-on-save)
-- [`show_inline_completions`](#show-inline-completions)
+- [`show_edit_predictions`](#show-edit-predictions)
 - [`show_whitespaces`](#show-whitespaces)
 - [`soft_wrap`](#soft-wrap)
 - [`tab_size`](#tab-size)
@@ -1652,10 +1652,10 @@ Or to set a `socks5` proxy:
 
 `boolean` values
 
-## Show Inline Completions
+## Show Edit Predictions
 
-- Description: Whether to show inline completions as you type or manually by triggering `editor::ShowInlineCompletion`.
-- Setting: `show_inline_completions`
+- Description: Whether to show edit predictions as you type or manually by triggering `editor::ShowEditPrediction`.
+- Setting: `show_edit_predictions`
 - Default: `true`
 
 **Options**

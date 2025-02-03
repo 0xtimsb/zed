@@ -24,8 +24,8 @@
   "base_keymap": "VSCode",
   // Features that can be globally enabled or disabled
   "features": {
-    // Which inline completion provider to use.
-    "inline_completion_provider": "copilot"
+    // Which edit prediction provider to use.
+    "edit_prediction_provider": "copilot"
   },
   // The name of a font to use for rendering text in the editor
   "buffer_font_family": "Zed Plex Mono",
@@ -161,9 +161,9 @@
   /// Whether to show the signature help after completion or a bracket pair inserted.
   /// If `auto_signature_help` is enabled, this setting will be treated as enabled also.
   "show_signature_help_after_edits": false,
-  /// Whether to show the inline completions next to the completions provided by a language server.
-  /// Only has an effect if inline completion provider supports it.
-  "show_inline_completions_in_menu": true,
+  /// Whether to show the edit predictions next to the completions provided by a language server.
+  /// Only has an effect if edit prediction provider supports it.
+  "show_edit_completions_in_menu": true,
   // Whether to show wrap guides (vertical rulers) in the editor.
   // Setting this to true will show a guide at the 'preferred_line_length' value
   // if 'soft_wrap' is set to 'preferred_line_length', and will show any
@@ -196,12 +196,12 @@
   // Otherwise(when `true`), the closing characters are always skipped over and auto-removed
   // no matter how they were inserted.
   "always_treat_brackets_as_autoclosed": false,
-  // Controls whether inline completions are shown immediately (true)
+  // Controls whether edit predictions are shown immediately (true)
   // or manually by triggering `editor::ShowEditPrediction` (false).
-  "show_inline_completions": true,
-  // Controls whether inline completions are shown in a given language scope.
+  "show_edit_predictions": true,
+  // Controls whether edit predictions are shown in a given language scope.
   // Example: ["string", "comment"]
-  "inline_completions_disabled_in": [],
+  "edit_predictions_disabled_in": [],
   // Whether to show tabs and spaces in the editor.
   // This setting can take four values:
   //
@@ -774,8 +774,8 @@
   // 2. Load direnv configuration through the shell hook, works for POSIX shells and fish.
   //      "load_direnv": "shell_hook"
   "load_direnv": "direct",
-  "inline_completions": {
-    // A list of globs representing files that inline completions should be disabled for.
+  "edit_predictions": {
+    // A list of globs representing files that edit predictions should be disabled for.
     "disabled_globs": [
       "**/.env*",
       "**/*.pem",

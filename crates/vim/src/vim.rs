@@ -1574,7 +1574,7 @@ impl Vim {
             let enable_inline_completions = match vim.mode {
                 Mode::Insert | Mode::Replace => true,
                 Mode::Normal => editor
-                    .inline_completion_provider()
+                    .edit_prediction_provider()
                     .map_or(false, |provider| provider.show_completions_in_normal_mode()),
                 _ => false,
             };

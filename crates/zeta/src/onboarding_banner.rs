@@ -25,13 +25,13 @@ impl ZedPredictBanner {
             return false;
         }
 
-        let provider = all_language_settings(None, cx).inline_completions.provider;
+        let provider = all_language_settings(None, cx).edit_predictions.provider;
 
         match provider {
-            InlineCompletionProvider::None
-            | InlineCompletionProvider::Copilot
-            | InlineCompletionProvider::Supermaven => true,
-            InlineCompletionProvider::Zed => false,
+            EditPredictionProvider::None
+            | EditPredictionProvider::Copilot
+            | EditPredictionProvider::Supermaven => true,
+            EditPredictionProvider::Zed => false,
         }
     }
 
@@ -40,13 +40,13 @@ impl ZedPredictBanner {
             return;
         }
 
-        let provider = all_language_settings(None, cx).inline_completions.provider;
+        let provider = all_language_settings(None, cx).edit_predictions.provider;
 
         match provider {
-            InlineCompletionProvider::None
-            | InlineCompletionProvider::Copilot
-            | InlineCompletionProvider::Supermaven => {}
-            InlineCompletionProvider::Zed => {
+            EditPredictionProvider::None
+            | EditPredictionProvider::Copilot
+            | EditPredictionProvider::Supermaven => {}
+            EditPredictionProvider::Zed => {
                 self.dismiss(cx);
             }
         }

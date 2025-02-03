@@ -1,7 +1,7 @@
 use crate::{Completion, Copilot};
 use anyhow::Result;
 use gpui::{App, Context, Entity, EntityId, Task};
-use inline_completion::{Direction, InlineCompletion, InlineCompletionProvider};
+use inline_completion::{Direction, EditPredictionProvider, InlineCompletion};
 use language::{
     language_settings::{all_language_settings, AllLanguageSettings},
     Buffer, OffsetRangeExt, ToOffset,
@@ -50,7 +50,7 @@ impl CopilotCompletionProvider {
     }
 }
 
-impl InlineCompletionProvider for CopilotCompletionProvider {
+impl EditPredictionProvider for CopilotCompletionProvider {
     fn name() -> &'static str {
         "copilot"
     }
@@ -393,7 +393,7 @@ mod tests {
             assert_eq!(editor.text(cx), "one.\ntwo\nthree\n");
         });
 
-        // Ensure existing inline completion is interpolated when inserting again.
+        // Ensure existing edit prediction is interpolated when inserting again.
         cx.simulate_keystroke("c");
         executor.run_until_parked();
         cx.update_editor(|editor, _, cx| {
@@ -940,7 +940,7 @@ mod tests {
     async fn test_copilot_disabled_globs(executor: BackgroundExecutor, cx: &mut TestAppContext) {
         init_test(cx, |settings| {
             settings
-                .inline_completions
+                .edit_predictions
                 .get_or_insert(Default::default())
                 .disabled_globs = Some(vec![".env*".to_string()]);
         });

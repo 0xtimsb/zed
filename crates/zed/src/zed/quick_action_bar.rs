@@ -298,14 +298,14 @@ impl Render for QuickActionBar {
                             "Inline Completions",
                             inline_completions_enabled,
                             IconPosition::Start,
-                            Some(editor::actions::ToggleInlineCompletions.boxed_clone()),
+                            Some(editor::actions::ToggleEditPrediction.boxed_clone()),
                             {
                                 let editor = editor.clone();
                                 move |window, cx| {
                                     editor
                                         .update(cx, |editor, cx| {
                                             editor.toggle_inline_completions(
-                                                &editor::actions::ToggleInlineCompletions,
+                                                &editor::actions::ToggleEditPrediction,
                                                 window,
                                                 cx,
                                             );

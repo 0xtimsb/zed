@@ -1516,7 +1516,7 @@ impl Editor {
 
         if self.has_active_inline_completion() {
             key_context.add("copilot_suggestion");
-            key_context.add("inline_completion");
+            key_context.add("edit_prediction");
         }
 
         if self.selection_mark_mode {
@@ -1857,7 +1857,7 @@ impl Editor {
 
     pub fn toggle_inline_completions(
         &mut self,
-        _: &ToggleInlineCompletions,
+        _: &ToggleEditPrediction,
         window: &mut Window,
         cx: &mut Context<Self>,
     ) {
@@ -4690,7 +4690,7 @@ impl Editor {
 
     pub fn show_inline_completion(
         &mut self,
-        _: &ShowInlineCompletion,
+        _: &ShowEditPrediction,
         window: &mut Window,
         cx: &mut Context<Self>,
     ) {
@@ -4731,7 +4731,7 @@ impl Editor {
 
     pub fn next_inline_completion(
         &mut self,
-        _: &NextInlineCompletion,
+        _: &NextEditPrediction,
         window: &mut Window,
         cx: &mut Context<Self>,
     ) {
@@ -4749,7 +4749,7 @@ impl Editor {
 
     pub fn previous_inline_completion(
         &mut self,
-        _: &PreviousInlineCompletion,
+        _: &PreviousEditPrediction,
         window: &mut Window,
         cx: &mut Context<Self>,
     ) {
@@ -4767,7 +4767,7 @@ impl Editor {
 
     pub fn accept_inline_completion(
         &mut self,
-        _: &AcceptInlineCompletion,
+        _: &AcceptEditPrediction,
         window: &mut Window,
         cx: &mut Context<Self>,
     ) {
@@ -4833,7 +4833,7 @@ impl Editor {
 
     pub fn accept_partial_inline_completion(
         &mut self,
-        _: &AcceptPartialInlineCompletion,
+        _: &AcceptPartialEditPrediction,
         window: &mut Window,
         cx: &mut Context<Self>,
     ) {

@@ -178,7 +178,7 @@ fn register_backward_compatible_actions(editor: &mut Editor, cx: &mut Context<Ed
     editor
         .register_action(cx.listener(
             |editor, _: &copilot::NextSuggestion, window: &mut Window, cx: &mut Context<Editor>| {
-                editor.next_inline_completion(&Default::default(), window, cx);
+                editor.next_edit_prediction(&Default::default(), window, cx);
             },
         ))
         .detach();
@@ -188,7 +188,7 @@ fn register_backward_compatible_actions(editor: &mut Editor, cx: &mut Context<Ed
              _: &copilot::PreviousSuggestion,
              window: &mut Window,
              cx: &mut Context<Editor>| {
-                editor.previous_inline_completion(&Default::default(), window, cx);
+                editor.previous_edit_prediction(&Default::default(), window, cx);
             },
         ))
         .detach();

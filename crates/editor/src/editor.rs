@@ -1725,7 +1725,7 @@ impl Editor {
         self.semantics_provider = provider;
     }
 
-    pub fn set_inline_completion_provider<T>(
+    pub fn set_edit_prediction_provider<T>(
         &mut self,
         provider: Option<Entity<T>>,
         window: &mut Window,
@@ -3004,7 +3004,7 @@ impl Editor {
             }
 
             let trigger_in_words =
-                this.show_edit_completions_in_menu(cx) || !had_active_inline_completion;
+                this.show_edit_predictions_in_menu(cx) || !had_active_inline_completion;
             this.trigger_completion_on_input(&text, trigger_in_words, window, cx);
             linked_editing_ranges::refresh_linked_ranges(this, window, cx);
             this.refresh_inline_completion(true, false, window, cx);
@@ -3897,7 +3897,7 @@ impl Editor {
                         *editor.context_menu.borrow_mut() =
                             Some(CodeContextMenu::Completions(menu));
 
-                        if editor.show_inline_completions_in_menu(cx) {
+                        if editor.show_edit_predictions_in_menu(cx) {
                             editor.update_visible_inline_completion(window, cx);
                         } else {
                             editor.discard_inline_completion(false, cx);
@@ -3911,7 +3911,7 @@ impl Editor {
                         // If it was already hidden and we don't show inline
                         // completions in the menu, we should also show the
                         // inline-completion when available.
-                        if was_hidden && editor.show_edit_completions_in_menu(cx) {
+                        if was_hidden && editor.show_edit_predictions_in_menu(cx) {
                             editor.update_visible_inline_completion(window, cx);
                         }
                     }
@@ -3965,7 +3965,7 @@ impl Editor {
 
         let entries = completions_menu.entries.borrow();
         let mat = entries.get(item_ix.unwrap_or(completions_menu.selected_item))?;
-        if self.show_inline_completions_in_menu(cx) {
+        if self.show_edit_predictions_in_menu(cx) {
             self.discard_inline_completion(true, cx);
         }
         let candidate_id = mat.candidate_id;
@@ -4788,7 +4788,7 @@ impl Editor {
             }
         }
 
-        if self.show_edit_completions_in_menu(cx) {
+        if self.show_edit_predictions_in_menu(cx) {
             self.hide_context_menu(window, cx);
         }
 
@@ -4974,7 +4974,7 @@ impl Editor {
             return;
         }
 
-        if !self.show_inline_completions_in_menu(cx) {
+        if !self.show_edit_predictions_in_menu(cx) {
             return;
         }
 
@@ -5006,7 +5006,7 @@ impl Editor {
         let offset_selection = selection.map(|endpoint| endpoint.to_offset(&multibuffer));
         let excerpt_id = cursor.excerpt_id;
 
-        let show_in_menu = self.show_inline_completions_in_menu(cx);
+        let show_in_menu = self.show_edit_predictions_in_menu(cx);
         let completions_menu_has_precedence = !show_in_menu
             && (self.context_menu.borrow().is_some()
                 || (!self.completion_tasks.is_empty() && !self.has_active_inline_completion()));
@@ -5156,11 +5156,11 @@ impl Editor {
         Some(())
     }
 
-    pub fn inline_completion_provider(&self) -> Option<Arc<dyn InlineCompletionProviderHandle>> {
-        Some(self.inline_completion_provider.as_ref()?.provider.clone())
+    pub fn edit_prediction_provider(&self) -> Option<Arc<dyn InlineCompletionProviderHandle>> {
+        Some(self.edit_prediction_provider.as_ref()?.provider.clone())
     }
 
-    fn show_edit_completions_in_menu(&self, cx: &App) -> bool {
+    fn show_edit_predictions_in_menu(&self, cx: &App) -> bool {
         let by_provider = matches!(
             self.menu_inline_completions_policy,
             MenuInlineCompletionsPolicy::ByProvider
@@ -5418,7 +5418,7 @@ impl Editor {
         window: &Window,
         cx: &mut Context<Editor>,
     ) -> Option<AnyElement> {
-        let provider = self.inline_completion_provider.as_ref()?;
+        let provider = self.edit_prediction_provider.as_ref()?;
 
         if provider.provider.needs_terms_acceptance(cx) {
             return Some(

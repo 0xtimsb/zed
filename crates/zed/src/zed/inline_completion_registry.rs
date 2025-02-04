@@ -42,7 +42,7 @@ pub fn init(client: Arc<Client>, user_store: Entity<UserStore>, cx: &mut App) {
                 .borrow_mut()
                 .insert(editor_handle, window.window_handle());
             let provider = all_language_settings(None, cx).edit_predictions.provider;
-            assign_inline_completion_provider(
+            assign_edit_prediction_provider(
                 editor,
                 provider,
                 &client,
@@ -58,7 +58,7 @@ pub fn init(client: Arc<Client>, user_store: Entity<UserStore>, cx: &mut App) {
     for (editor, window) in editors.borrow().iter() {
         _ = window.update(cx, |_window, window, cx| {
             _ = editor.update(cx, |editor, cx| {
-                assign_inline_completion_provider(
+                assign_edit_prediction_provider(
                     editor,
                     provider,
                     &client,
@@ -80,7 +80,7 @@ pub fn init(client: Arc<Client>, user_store: Entity<UserStore>, cx: &mut App) {
         let user_store = user_store.clone();
         move |active, cx| {
             let provider = all_language_settings(None, cx).edit_predictions.provider;
-            assign_inline_completion_providers(&editors, provider, &client, user_store.clone(), cx);
+            assign_edit_prediction_providers(&editors, provider, &client, user_store.clone(), cx);
             if active && !cx.is_action_available(&zeta::ClearHistory) {
                 cx.on_action(clear_zeta_edit_history);
             }
@@ -96,7 +96,7 @@ pub fn init(client: Arc<Client>, user_store: Entity<UserStore>, cx: &mut App) {
             let new_provider = all_language_settings(None, cx).edit_predictions.provider;
             if new_provider != provider {
                 provider = new_provider;
-                assign_inline_completion_providers(
+                assign_edit_prediction_providers(
                     &editors,
                     provider,
                     &client,
@@ -141,7 +141,7 @@ fn clear_zeta_edit_history(_: &zeta::ClearHistory, cx: &mut App) {
     }
 }
 
-fn assign_inline_completion_providers(
+fn assign_edit_prediction_providers(
     editors: &Rc<RefCell<HashMap<WeakEntity<Editor>, AnyWindowHandle>>>,
     provider: EditPredictionProvider,
     client: &Arc<Client>,
@@ -151,7 +151,7 @@ fn assign_inline_completion_providers(
     for (editor, window) in editors.borrow().iter() {
         _ = window.update(cx, |_window, window, cx| {
             _ = editor.update(cx, |editor, cx| {
-                assign_inline_completion_provider(
+                assign_edit_prediction_provider(
                     editor,
                     provider,
                     &client,
@@ -204,7 +204,7 @@ fn register_backward_compatible_actions(editor: &mut Editor, cx: &mut Context<Ed
         .detach();
 }
 
-fn assign_inline_completion_provider(
+fn assign_edit_prediction_provider(
     editor: &mut Editor,
     provider: EditPredictionProvider,
     client: &Arc<Client>,
@@ -227,13 +227,13 @@ fn assign_inline_completion_provider(
                     }
                 }
                 let provider = cx.new(|_| CopilotCompletionProvider::new(copilot));
-                editor.set_inline_completion_provider(Some(provider), window, cx);
+                editor.set_edit_prediction_provider(Some(provider), window, cx);
             }
         }
         EditPredictionProvider::Supermaven => {
             if let Some(supermaven) = Supermaven::global(cx) {
                 let provider = cx.new(|_| SupermavenCompletionProvider::new(supermaven));
-                editor.set_inline_completion_provider(Some(provider), window, cx);
+                editor.set_edit_prediction_provider(Some(provider), window, cx);
             }
         }
         EditPredictionProvider::Zed => {
@@ -271,7 +271,7 @@ fn assign_inline_completion_provider(
                 let provider =
                     cx.new(|_| zeta::ZetaInlineCompletionProvider::new(zeta, data_collection));
 
-                editor.set_inline_completion_provider(Some(provider), window, cx);
+                editor.set_edit_prediction_provider(Some(provider), window, cx);
             }
         }
     }

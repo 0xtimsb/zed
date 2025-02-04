@@ -3174,7 +3174,7 @@ impl EditorElement {
 
         {
             let editor = self.editor.read(cx);
-            if editor.has_active_completions_menu() && editor.show_inline_completions_in_menu(cx) {
+            if editor.has_active_completions_menu() && editor.show_edit_predictions_in_menu(cx) {
                 height_above_menu +=
                     editor.edit_prediction_cursor_popover_height() + POPOVER_Y_PADDING;
                 edit_prediction_popover_visible = true;
@@ -5820,7 +5820,7 @@ fn inline_completion_accept_indicator(
     window: &Window,
     cx: &App,
 ) -> AnyElement {
-    let bindings = window.bindings_for_action_in(&crate::AcceptInlineCompletion, &focus_handle);
+    let bindings = window.bindings_for_action_in(&crate::AcceptEditPrediction, &focus_handle);
     let Some(accept_keystroke) = bindings
         .last()
         .and_then(|binding| binding.keystrokes().first())

@@ -997,9 +997,9 @@ impl settings::Settings for AllLanguageSettings {
         let mut edit_prediction_provider = default_value
             .features
             .as_ref()
-            .and_then(|f| f.inline_completion_provider);
+            .and_then(|f| f.edit_prediction_provider);
         let mut completion_globs: HashSet<&String> = default_value
-            .inline_completions
+            .edit_predictions
             .as_ref()
             .and_then(|c| c.disabled_globs.as_ref())
             .map(|globs| globs.iter().collect())

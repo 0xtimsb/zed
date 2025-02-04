@@ -311,7 +311,7 @@ mod tests {
         .await;
         let copilot_provider = cx.new(|_| CopilotCompletionProvider::new(copilot));
         cx.update_editor(|editor, window, cx| {
-            editor.set_inline_completion_provider(Some(copilot_provider), window, cx)
+            editor.set_edit_prediction_provider(Some(copilot_provider), window, cx)
         });
 
         cx.set_state(indoc! {"
@@ -536,7 +536,7 @@ mod tests {
         .await;
         let copilot_provider = cx.new(|_| CopilotCompletionProvider::new(copilot));
         cx.update_editor(|editor, window, cx| {
-            editor.set_inline_completion_provider(Some(copilot_provider), window, cx)
+            editor.set_edit_prediction_provider(Some(copilot_provider), window, cx)
         });
 
         // Setup the editor with a completion request.
@@ -660,7 +660,7 @@ mod tests {
         .await;
         let copilot_provider = cx.new(|_| CopilotCompletionProvider::new(copilot));
         cx.update_editor(|editor, window, cx| {
-            editor.set_inline_completion_provider(Some(copilot_provider), window, cx)
+            editor.set_edit_prediction_provider(Some(copilot_provider), window, cx)
         });
 
         cx.set_state(indoc! {"
@@ -750,7 +750,7 @@ mod tests {
         let copilot_provider = cx.new(|_| CopilotCompletionProvider::new(copilot));
         editor
             .update(cx, |editor, window, cx| {
-                editor.set_inline_completion_provider(Some(copilot_provider), window, cx)
+                editor.set_edit_prediction_provider(Some(copilot_provider), window, cx)
             })
             .unwrap();
 
@@ -844,7 +844,7 @@ mod tests {
         .await;
         let copilot_provider = cx.new(|_| CopilotCompletionProvider::new(copilot));
         cx.update_editor(|editor, window, cx| {
-            editor.set_inline_completion_provider(Some(copilot_provider), window, cx)
+            editor.set_edit_prediction_provider(Some(copilot_provider), window, cx)
         });
 
         cx.set_state(indoc! {"
@@ -1002,7 +1002,7 @@ mod tests {
         let copilot_provider = cx.new(|_| CopilotCompletionProvider::new(copilot));
         editor
             .update(cx, |editor, window, cx| {
-                editor.set_inline_completion_provider(Some(copilot_provider), window, cx)
+                editor.set_edit_prediction_provider(Some(copilot_provider), window, cx)
             })
             .unwrap();
 

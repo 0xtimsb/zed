@@ -89,6 +89,10 @@ struct PushSneakBackward {
 
 #[derive(Clone, Deserialize, JsonSchema, PartialEq)]
 #[serde(deny_unknown_fields)]
+struct PushAddSurrounds {}
+
+#[derive(Clone, Deserialize, JsonSchema, PartialEq)]
+#[serde(deny_unknown_fields)]
 struct PushChangeSurrounds {
     target: Option<Object>,
 }
@@ -136,7 +140,6 @@ actions!(
         PushDelete,
         PushYank,
         PushReplace,
-        PushAddSurrounds,
         PushDeleteSurrounds,
         PushMark,
         PushIndent,
@@ -167,6 +170,7 @@ impl_actions!(
         PushFindBackward,
         PushSneak,
         PushSneakBackward,
+        PushAddSurrounds,
         PushChangeSurrounds,
         PushJump,
         PushDigraph,
@@ -512,6 +516,10 @@ impl Vim {
                 )
             });
 
+            Vim::action(editor, cx, |vim, _: &PushAddSurrounds, window, cx| {
+                vim.push_operator(Operator::AddSurrounds { target: None }, window, cx)
+            });
+
             Vim::action(
                 editor,
                 cx,
@@ -564,10 +572,6 @@ impl Vim {
 
             Vim::action(editor, cx, |vim, _: &PushReplace, window, cx| {
                 vim.push_operator(Operator::Replace, window, cx)
-            });
-
-            Vim::action(editor, cx, |vim, _: &PushAddSurrounds, window, cx| {
-                vim.push_operator(Operator::AddSurrounds { target: None }, window, cx)
             });
 
             Vim::action(editor, cx, |vim, _: &PushDeleteSurrounds, window, cx| {
